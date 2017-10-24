@@ -3,7 +3,7 @@
 // This file is part of the BWEM Library.
 // BWEM is free software, licensed under the MIT/X11 License. 
 // A copy of the license is provided with the library in the LICENSE file.
-// Copyright (c) 2015, 2016, Igor Dimitrijevic
+// Copyright (c) 2015, 2017, Igor Dimitrijevic
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +118,7 @@ public:
 	// Returns a Tile or a MiniTile, given its position.
 	// Provided as a support of generic algorithms.
 	template<class TPosition>
-	typename const utils::TileOfPosition<TPosition>::type & GetTTile(const TPosition & p, utils::check_t checkMode = utils::check_t::check) const;
+	const typename utils::TileOfPosition<TPosition>::type & GetTTile(const TPosition & p, utils::check_t checkMode = utils::check_t::check) const;
 
 	// Provides access to the internal array of Tiles.
 	const std::vector<Tile> &			Tiles() const									{ return m_Tiles; }
@@ -206,7 +206,7 @@ public:
 	// Generic algorithm for breadth first search in the Map.
 	// See the several use cases in BWEM source files.
 	template<class TPosition, class Pred1, class Pred2>
-	TPosition							BreadthFirstSearch(TPosition start, Pred1 findCond, Pred2 visitCond) const;
+	TPosition							BreadthFirstSearch(TPosition start, Pred1 findCond, Pred2 visitCond, bool connect8 = true) const;
 
 
 	// Returns the union of the geometry of all the ChokePoints. Cf. ChokePoint::Geometry()
@@ -237,20 +237,20 @@ private:
 
 
 template<>
-inline typename const Tile & Map::GetTTile<BWAPI::TilePosition>(const BWAPI::TilePosition & t, utils::check_t checkMode) const
+inline const Tile & Map::GetTTile<BWAPI::TilePosition>(const BWAPI::TilePosition & t, utils::check_t checkMode) const
 {
 	return GetTile(t, checkMode);
 }
 
 template<>
-inline typename const MiniTile & Map::GetTTile<BWAPI::WalkPosition>(const BWAPI::WalkPosition & w, utils::check_t checkMode) const
+inline const MiniTile & Map::GetTTile<BWAPI::WalkPosition>(const BWAPI::WalkPosition & w, utils::check_t checkMode) const
 {
 	return GetMiniTile(w, checkMode);
 }
 
 
 template<class TPosition, class Pred1, class Pred2>
-inline TPosition Map::BreadthFirstSearch(TPosition start, Pred1 findCond, Pred2 visitCond) const
+inline TPosition Map::BreadthFirstSearch(TPosition start, Pred1 findCond, Pred2 visitCond, bool connect8) const
 {
 	typedef typename utils::TileOfPosition<TPosition>::type Tile_t;
 	if (findCond(GetTTile(start), start)) return start;
@@ -261,21 +261,27 @@ inline TPosition Map::BreadthFirstSearch(TPosition start, Pred1 findCond, Pred2 
 	ToVisit.push(start);
 	Visited.push_back(start);
 
+	auto dir8 = {	TPosition(-1, -1), TPosition(0, -1), TPosition(+1, -1),
+					TPosition(-1,  0),                   TPosition(+1,  0),
+					TPosition(-1, +1), TPosition(0, +1), TPosition(+1, +1)};
+
+	auto dir4 = { TPosition(0, -1), TPosition(-1,  0), TPosition(+1,  0), TPosition(0, +1)};
+
+	auto directions = connect8 ? dir8 : dir4;
+
 	while (!ToVisit.empty())
 	{
 		TPosition current = ToVisit.front();
 		ToVisit.pop();
-		for (TPosition delta : {	TPosition(-1, -1), TPosition(0, -1), TPosition(+1, -1),
-									TPosition(-1,  0),                   TPosition(+1,  0),
-									TPosition(-1, +1), TPosition(0, +1), TPosition(+1, +1)})
+		for (TPosition delta : directions)
 		{
 			TPosition next = current + delta;
 			if (Valid(next))
 			{
-				const Tile_t & Next = GetTTile(next, check_t::no_check); 
+				const Tile_t & Next = GetTTile(next, utils::check_t::no_check); 
 				if (findCond(Next, next)) return next;
 
-				if (visitCond(Next, next) && !contains(Visited, next))
+				if (visitCond(Next, next) && !utils::contains(Visited, next))
 				{
 					ToVisit.push(next);
 					Visited.push_back(next);

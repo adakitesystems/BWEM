@@ -20,6 +20,8 @@
 |
 <a href="Iron.html">Iron</a>
 |
+<a href="interactiveIron.html">Control the Iron!</a>
+|
 <a href="download.html">download</a>
 |
 <a href="help.html">help</a>
@@ -32,6 +34,7 @@
 <P/>
 <HR/>
 <ul>
+<li><a href="#where-is-the-doc">Where is the API documentation?</a>
 <li><a href="#how-mature">How mature is the library?</a>
 <li><a href="#how-fast">How fast is it?</a>
 <li><a href="#how-robust">How robust is it?</a>
@@ -43,10 +46,22 @@
 <li><a href="#modify-the-code">So may I modify the code to fit my needs?</a>
 <li><a href="#is-it-extensible">Is the library extensible?</a>
 <li><a href="#paths-optimal">Are the paths optimal?</a>
+<li><a href="#mix-libraries">Can I use the library together with other libraries?</a>
 </ul>
 <P/>
 <HR/>
 <P/>
+
+<h2 id="where-is-the-doc">Where is the API documentation?</h2>
+The whole documentation of the BWEM library is located in its headers source files.
+<br/>
+A good place to start with is <b>src/bwem.h</b>
+<br/>
+Every single function and type is documented in details.
+<P/>
+You don't need to read the whole API documentation though.
+The library provides concret and expected abstractions such as areas and choke points.
+You may want to read first the files <b>src/examples.h</b> and <b>src/examples.cpp</b>, which provide runable examples of how you can use the library and access the features.
 
 <h2 id="how-mature">How mature is the library?</h2>
 I consider it quite mature, in terms of both functionality and robustness.
@@ -58,7 +73,7 @@ I consider it quite mature, in terms of both functionality and robustness.
 <li/><a href="Iron.html">Iron</a>, currently under development, is based on the library too.
 </ul>
 
-  
+
 <h2 id="how-fast">How fast is it?</h2>
 <u>The analysis:</u>
 <P/>
@@ -231,6 +246,15 @@ This way, the unit will go through the ChokePoints of the path in a smart way.
 <br/><a href="Stone.html">Stone</a> demonstrates this technique. If you are interested, download its source code and look at the file <b>walking.cpp</b>.
 
 
+<h2 id="mix-libraries">Can I use the library together with other libraries?</h2>
+Of course you can.
+<br/>The BWEM library is a light-weight library with namespaces and minimal dependancies. It is not likely to interfere with other libraries.
+<P/>
+For example, you can include the BWEM library even if you already uses the <a target="_blank" href="https://bitbucket.org/auriarte/bwta2">BWTA2 library</a>.
+This way wou can access to specific features from each library. 
+<P/>
+
+
 
 
 <hr/>
@@ -248,6 +272,8 @@ This way, the unit will go through the ChokePoints of the path in a smart way.
 <a href="Stone.html">Stone</a>
 |
 <a href="Iron.html">Iron</a>
+|
+<a href="interactiveIron.html">Control the Iron!</a>
 |
 <a href="download.html">download</a>
 |

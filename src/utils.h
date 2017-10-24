@@ -3,7 +3,7 @@
 // This file is part of the BWEM Library.
 // BWEM is free software, licensed under the MIT/X11 License. 
 // A copy of the license is provided with the library in the LICENSE file.
-// Copyright (c) 2015, 2016, Igor Dimitrijevic
+// Copyright (c) 2015, 2017, Igor Dimitrijevic
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -116,7 +116,7 @@ I random_element(I begin, I end)
     const auto n = std::distance(begin, end);
     const auto divisor = (RAND_MAX + 1) / n;
 
-	std::remove_const<decltype(n)>::type k;
+	typename std::remove_const<decltype(n)>::type k;
     do { k = std::rand() / divisor; } while (k >= n);
 
     std::advance(begin, k);
@@ -125,12 +125,12 @@ I random_element(I begin, I end)
 
 
 template<class T>
-inline typename const T::value_type & random_element(const T & Container)
+inline const typename T::value_type & random_element(const T & Container)
 {
     const auto n = Container.size();
     const auto divisor = (RAND_MAX + 1) / n;
 
-	std::remove_const<decltype(n)>::type k;
+	typename std::remove_const<decltype(n)>::type k;
     do { k = std::rand() / divisor; } while (k >= n);
 
 	return Container[k];
@@ -247,8 +247,8 @@ public:
 	void				SetPtr(void * p) const			{ m_ptr = p; }
 
 	// Free use.
-	void *				Ext() const						{ return m_ptr; }
-	void				SetExt(void * p) const			{ m_ptr = p; }
+	void *				Ext() const						{ return m_ext; }
+	void				SetExt(void * p) const			{ m_ext = p; }
 
 protected:
 						UserData() = default;
