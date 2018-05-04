@@ -1,3 +1,5 @@
+// Written by jaj22
+
 #include <cstdint>
 #include <array>
 #include <algorithm>

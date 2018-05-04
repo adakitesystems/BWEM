@@ -460,10 +460,11 @@ void Area::CreateBases()
 				}
 			}
 
-			for (const auto bwemGas : Geysers()) {
+			for (const auto &bwemGas : pMap->Geysers()) {
 				for (const auto &baseGeyser : closestBase->geysers) {
 					if (baseGeyser->getTilePosition() == bwemGas->TopLeft()) {
-						AssignedRessources.push_back(bwemGas);
+						BWEM::Ressource *r = bwemGas.get();
+						AssignedRessources.push_back(r);
 					}
 				}
 			}
