@@ -13,6 +13,7 @@
 #include "bwapiExt.h"
 #include "winutils.h"
 
+#include "BaseFinder\BaseFinder.h"
 
 using namespace BWAPI;
 using namespace BWAPI::UnitTypes::Enum;
@@ -69,6 +70,8 @@ void MapImpl::Initialize()
 {
 	this->~MapImpl();
     new (this) MapImpl();
+
+	BaseFinder::Init();
 
 ///	Timer overallTimer;
 ///	Timer timer;

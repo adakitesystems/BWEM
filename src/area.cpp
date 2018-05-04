@@ -7,14 +7,18 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-
 #include "area.h"
+
+#include <map>
+#include <memory>
+
 #include "mapImpl.h"
 #include "graph.h"
 #include "neutral.h"
 #include "winutils.h"
-#include <map>
+#include "bwapiExt.h"
 
+#include "BaseFinder\BaseFinder.h"
 
 using namespace BWAPI;
 using namespace BWAPI::UnitTypes::Enum;
@@ -323,6 +327,16 @@ void Area::CreateBases()
 	const TilePosition dimCC = UnitType(Terran_Command_Center).tileSize();
 	const Map * pMap = GetMap();
 
+	// Compile list of BaseFinder bases in this area.
+	vector<std::shared_ptr<BaseFinder::Base>> BaseFinderBases;
+	for (const auto &base : BaseFinder::GetBases()) 
+	{
+		if (pMap->GetArea(BWAPI::TilePosition(base.pos)) == this) 
+		{
+			BaseFinderBases.push_back(std::make_shared<BaseFinder::Base>(base));
+		}
+	}
+	vector<std::shared_ptr<BaseFinder::Base>> AssignedBaseFinderBases;
 
 	// Initialize the RemainingRessources with all the Minerals and Geysers in this Area satisfying some conditions:
 	vector<Ressource *> RemainingRessources;
@@ -416,7 +430,50 @@ void Area::CreateBases()
 			break;
 		}
 
-		m_Bases.emplace_back(this, bestLocation, AssignedRessources, BlockingMinerals);
+		std::shared_ptr<BaseFinder::Base> closestBase = nullptr;
+		for (const auto &base : BaseFinderBases) 
+		{
+			if (!closestBase)
+			{
+				closestBase = base;
+			}
+			else
+			{
+				const bool isBaseCloser = BWEM::BWAPI_ext::dist(base->tpos, bestLocation) < BWEM::BWAPI_ext::dist(closestBase->tpos, bestLocation);
+				const bool isBaseAssigned = BWEM::utils::contains(AssignedBaseFinderBases, closestBase);
+				if (isBaseCloser && !isBaseAssigned) {
+					closestBase = base;
+				}
+			}
+		}
+
+		if (closestBase)
+		{
+			AssignedRessources.clear();
+
+			for (const auto &bwemMineral : pMap->Minerals()) {
+				for (const auto &baseMineral : closestBase->minerals) {
+					if (baseMineral->getTilePosition() == bwemMineral->TopLeft()) {
+						BWEM::Ressource *r = bwemMineral.get();
+						AssignedRessources.push_back(r);
+					}
+				}
+			}
+
+			for (const auto bwemGas : Geysers()) {
+				for (const auto &baseGeyser : closestBase->geysers) {
+					if (baseGeyser->getTilePosition() == bwemGas->TopLeft()) {
+						AssignedRessources.push_back(bwemGas);
+					}
+				}
+			}
+
+			m_Bases.emplace_back(this, closestBase->tpos, AssignedRessources, BlockingMinerals);
+		}
+		else
+		{
+			//m_Bases.emplace_back(this, bestLocation, AssignedRessources, BlockingMinerals);
+		}
 	}
 }
 
